@@ -1,7 +1,7 @@
 class TaskRepository {
   async create(_data) {}
 
-  async findAll(_userId) {}
+  async findAll(_userId, _options) {}
 
   async complete(_taskId) {}
 

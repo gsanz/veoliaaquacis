@@ -5,20 +5,25 @@ class MongoTaskRepository {
     return Task.create(data);
   }
 
-  async findAll(userId) {
-    return Task.find({ userId });
+  async findAll(userId, { skip = 0, limit = 10 }) {
+    const [tasks, total] = await Promise.all([
+      Task.find({ userId }).skip(skip).limit(limit),
+      Task.countDocuments({ userId }),
+    ]);
+
+    return {
+      data: tasks,
+      meta: {
+        total,
+        page: Math.floor(skip / limit) + 1,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async complete(taskId) {
-    return Task.findByIdAndUpdate(
-      taskId,
-      {
-        completed: true,
-      },
-      {
-        new: true,
-      }
-    );
+    return Task.findByIdAndUpdate(taskId, { completed: true }, { new: true });
   }
 
   async delete(taskId) {
