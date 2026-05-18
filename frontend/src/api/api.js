@@ -1,10 +1,10 @@
-// src/api/api.js
 import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000/api',
 });
 
+// 🔐 attach token automatically
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
 
@@ -14,5 +14,18 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+export const setupInterceptors = (logout) => {
+  api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        logout(); // auto logout
+        window.location.href = '/';
+      }
+      return Promise.reject(error);
+    }
+  );
+};
 
 export default api;

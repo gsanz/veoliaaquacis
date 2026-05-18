@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthContext } from './AuthContext';
+import { setupInterceptors } from '../api/api';
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => {
-    return localStorage.getItem('token');
-  });
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
 
   const login = (newToken) => {
     localStorage.setItem('token', newToken);
@@ -15,6 +14,10 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token');
     setToken(null);
   };
+
+  useEffect(() => {
+    setupInterceptors(logout);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ token, login, logout }}>
