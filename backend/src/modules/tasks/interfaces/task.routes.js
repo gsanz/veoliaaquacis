@@ -15,12 +15,45 @@ router.use(authMiddleware);
  *   get:
  *     tags:
  *       - Tasks
- *     summary: Obtener tareas del usuario
+ *     summary: Obtener tareas del usuario con paginación
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: Número de página
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           example: 10
+ *         description: Elementos por página
+ *
  *     responses:
  *       200:
- *         description: Lista de tareas
+ *         description: Lista paginada de tareas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     total:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
  */
 router.get('/', controller.list);
 

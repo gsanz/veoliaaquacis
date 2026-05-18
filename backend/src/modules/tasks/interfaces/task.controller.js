@@ -26,7 +26,8 @@ exports.list = async (req, res, next) => {
   try {
     const useCase = new ListTasksUseCase(repository);
 
-    const { page, limit } = req.query;
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
 
     const result = await useCase.execute(req.user.id, {
       page,

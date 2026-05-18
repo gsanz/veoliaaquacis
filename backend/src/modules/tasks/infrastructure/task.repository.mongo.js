@@ -5,19 +5,22 @@ class MongoTaskRepository {
     return Task.create(data);
   }
 
-  async findAll(userId, { skip = 0, limit = 10 }) {
+  async findAll(userId, { page = 1, limit = 10 }) {
+    const skip = (page - 1) * limit;
+
     const [tasks, total] = await Promise.all([
-      Task.find({ userId }).skip(skip).limit(limit),
+      Task.find({ userId }).skip(skip).limit(limit).sort({ createdAt: -1 }),
+
       Task.countDocuments({ userId }),
     ]);
 
     return {
       data: tasks,
-      meta: {
-        total,
-        page: Math.floor(skip / limit) + 1,
+      pagination: {
+        page,
         limit,
-        pages: Math.ceil(total / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     };
   }
