@@ -1,14 +1,55 @@
-// src/components/TaskCard.jsx
+import {
+  Card,
+  CardContent,
+  Typography,
+  Chip,
+  Stack,
+} from '@mui/material';
+
 export default function TaskCard({ task }) {
   return (
-    <div style={{
-      border: '1px solid #ddd',
-      padding: '10px',
-      marginBottom: '10px'
-    }}>
-      <h3>{task.title}</h3>
-      <p>{task.responsible}</p>
-      <p>{task.completed ? '✔ Done' : '⏳ Pending'}</p>
-    </div>
+    <Card
+      sx={{
+        mb: 2,
+        borderRadius: 3,
+      }}
+    >
+      <CardContent>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography variant="h6">
+            {task.title}
+          </Typography>
+
+          <Chip
+            label={
+              task.completed
+                ? 'Completada'
+                : 'Pendiente'
+            }
+            color={
+              task.completed
+                ? 'success'
+                : 'warning'
+            }
+          />
+        </Stack>
+
+        <Typography sx={{ mt: 1 }}>
+          {task.description}
+        </Typography>
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 2 }}
+        >
+          Responsable: {task.responsible}
+        </Typography>
+      </CardContent>
+    </Card>
   );
 }

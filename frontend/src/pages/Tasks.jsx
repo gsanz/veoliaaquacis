@@ -1,6 +1,23 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import {
+  Container,
+  Typography,
+  Button,
+  Box,
+  Pagination,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  TextField,
+  Stack,
+  Paper,
+} from '@mui/material';
+
+import AddIcon from '@mui/icons-material/Add';
+
 import api from '../api/api';
 import TaskCard from '../components/TaskCard';
 import { LoadingContext } from '../context/LoadingContext';
@@ -8,15 +25,14 @@ import { LoadingContext } from '../context/LoadingContext';
 export default function Tasks() {
   const [tasks, setTasks] = useState([]);
 
-  // 📊 PAGINACIÓN
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
   const { setLoading } = useContext(LoadingContext);
+
   const navigate = useNavigate();
 
-  // 🚀 FETCH TASKS
   const fetchTasks = async (
     pageNumber = 1,
     pageSize = limit
@@ -28,10 +44,9 @@ export default function Tasks() {
         `/tasks?page=${pageNumber}&limit=${pageSize}`
       );
 
-      // ✅ DATA
       const data = res.data?.data || [];
 
-      // ✅ PAGINATION
+
       const pagination = res.data?.pagination || {};
 
       setTasks(data);
@@ -42,164 +57,199 @@ export default function Tasks() {
 
       setTotalPages(pagination.totalPages || 1);
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error(
+        'Error fetching tasks:',
+        error
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // 🚀 INITIAL LOAD
   useEffect(() => {
     fetchTasks(1, limit);
   }, []);
 
-  // ⬅️ PREVIOUS PAGE
-  const handlePrev = () => {
-    if (page > 1) {
-      fetchTasks(page - 1, limit);
-    }
+  const handlePageChange = (
+    _,
+    value
+  ) => {
+    fetchTasks(value, limit);
   };
 
-  // ➡️ NEXT PAGE
-  const handleNext = () => {
-    if (page < totalPages) {
-      fetchTasks(page + 1, limit);
-    }
-  };
-
-  // 🔢 GO TO SPECIFIC PAGE
-  const handlePageClick = (num) => {
-    fetchTasks(num, limit);
-  };
-
-  // 📦 CHANGE PAGE SIZE
   const handleLimitChange = (e) => {
-    const newLimit = Number(e.target.value);
+    const newLimit = Number(
+      e.target.value
+    );
 
-    // 🚨 reset page
     fetchTasks(1, newLimit);
   };
 
-  // 🔢 PAGE BUTTONS
-  const renderPages = () => {
-    return Array.from(
-      { length: totalPages },
-      (_, i) => i + 1
-    ).map((num) => (
-      <button
-        key={num}
-        onClick={() => handlePageClick(num)}
-        style={{
-          margin: 3,
-          padding: '5px 10px',
-          fontWeight:
-            num === page ? 'bold' : 'normal',
-          background:
-            num === page ? '#ddd' : 'white',
-          cursor: 'pointer',
-        }}
-      >
-        {num}
-      </button>
-    ));
-  };
-
   return (
-    <div style={{ padding: 20 }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: 5,
+        mb: 5,
+      }}
+    >
       {/* HEADER */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+      <Paper
+        elevation={3}
+        sx={{
+          p: 3,
+          borderRadius: 4,
+          mb: 4,
         }}
       >
-        <h1>Mis tareas</h1>
-
-        <button
-          onClick={() => navigate('/create')}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexWrap="wrap"
+          gap={2}
         >
-          + Nueva tarea
-        </button>
-      </div>
-
-      {/* 📦 PAGE SIZE */}
-      <div style={{ margin: '15px 0' }}>
-        <label>
-          Tamaño página:{' '}
-          <select
-            value={limit}
-            onChange={handleLimitChange}
+          <Typography
+            variant="h4"
+            fontWeight="bold"
           >
-            <option value={5}>5</option>
+            Mis tareas
+          </Typography>
 
-            <option value={10}>10</option>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            size="large"
+            onClick={() =>
+              navigate('/create')
+            }
+          >
+            Nueva tarea
+          </Button>
+        </Box>
+      </Paper>
 
-            <option value={20}>20</option>
-          </select>
-        </label>
-      </div>
-
-      {/* 📋 TASK LIST */}
-      {tasks.length === 0 ? (
-        <p>No hay tareas</p>
-      ) : (
-        tasks.map((task) => (
-          <TaskCard
-            key={task._id}
-            task={task}
-          />
-        ))
-      )}
-
-      {/* 🔢 PAGINATION */}
-      <div
-        style={{
-          marginTop: 20,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          flexWrap: 'wrap',
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          borderRadius: 4,
+          mb: 4,
         }}
       >
-        <button
-          onClick={handlePrev}
-          disabled={page === 1}
-        >
-          ⬅ Anterior
-        </button>
-
-        {renderPages()}
-
-        <button
-          onClick={handleNext}
-          disabled={page === totalPages}
-        >
-          Siguiente ➡
-        </button>
-      </div>
-
-      {/* 🔢 GO TO PAGE */}
-      <div style={{ marginTop: 15 }}>
-        <input
-          type="number"
-          min={1}
-          max={totalPages}
-          placeholder="Ir a página"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              const num = Number(e.target.value);
-
-              if (
-                num >= 1 &&
-                num <= totalPages
-              ) {
-                handlePageClick(num);
-              }
-            }
+        <Stack
+          direction={{
+            xs: 'column',
+            sm: 'row',
           }}
+          spacing={3}
+          alignItems={{
+            xs: 'stretch',
+            sm: 'center',
+          }}
+        >
+          {/* PAGE SIZE */}
+          <FormControl
+            size="small"
+            sx={{ minWidth: 180 }}
+          >
+            <InputLabel>
+              Tamaño página
+            </InputLabel>
+
+            <Select
+              value={limit}
+              label="Tamaño página"
+              onChange={
+                handleLimitChange
+              }
+            >
+              <MenuItem value={5}>
+                5
+              </MenuItem>
+
+              <MenuItem value={10}>
+                10
+              </MenuItem>
+
+              <MenuItem value={20}>
+                20
+              </MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* GO TO PAGE */}
+          <TextField
+            type="number"
+            size="small"
+            label="Ir a página"
+            inputProps={{
+              min: 1,
+              max: totalPages,
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const num = Number(
+                  e.target.value
+                );
+
+                if (
+                  num >= 1 &&
+                  num <= totalPages
+                ) {
+                  fetchTasks(
+                    num,
+                    limit
+                  );
+                }
+              }
+            }}
+          />
+        </Stack>
+      </Paper>
+
+      {/* TASK LIST */}
+      <Box>
+        {tasks.length === 0 ? (
+          <Paper
+            elevation={1}
+            sx={{
+              p: 5,
+              textAlign: 'center',
+              borderRadius: 4,
+            }}
+          >
+            <Typography variant="h6">
+              No hay tareas
+            </Typography>
+          </Paper>
+        ) : (
+          tasks.map((task) => (
+            <TaskCard
+              key={task._id}
+              task={task}
+            />
+          ))
+        )}
+      </Box>
+
+      {/* PAGINATION */}
+      <Box
+        display="flex"
+        justifyContent="center"
+        mt={5}
+      >
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={
+            handlePageChange
+          }
+          color="primary"
+          size="large"
+          shape="rounded"
         />
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 }

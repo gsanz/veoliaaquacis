@@ -1,27 +1,35 @@
-import { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+
+import { useAuth } from '../hooks/useAuth';
 
 export default function Navbar() {
-  const { token, logout } = useContext(AuthContext);
+  const { logout } = useAuth();
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    toast.success('Sesión cerrada');
     navigate('/');
   };
 
   return (
-    <nav style={{ display: 'flex', justifyContent: 'space-between', padding: 10 }}>
-      <h3>Tasks App</h3>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography
+          variant="h6"
+          sx={{ flexGrow: 1 }}
+        >
+          Veolia Tasks
+        </Typography>
 
-      {token && (
-        <button onClick={handleLogout}>
-          Cerrar sesión
-        </button>
-      )}
-    </nav>
+        <Button
+          color="inherit"
+          onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      </Toolbar>
+    </AppBar>
   );
 }

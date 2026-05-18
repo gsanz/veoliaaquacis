@@ -1,27 +1,31 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/api';
-import { AuthContext } from '../context/AuthContext';
+
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+} from '@mui/material';
+
 import { toast } from 'react-toastify';
 
-import styles from '../styles/login.module.css';
+import api from '../api/api';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
+
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    // 🔐 VALIDACIÓN FRONTEND
     if (!email || !password) {
       toast.error('Email y password son obligatorios');
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error('La password debe tener al menos 6 caracteres');
       return;
     }
 
@@ -33,36 +37,71 @@ export default function Login() {
 
       login(res.data.token);
 
-      toast.success('Login correcto 🎉');
+      toast.success('Login correcto');
 
       navigate('/tasks');
-    } catch (err) {
+    } catch (error) {
       toast.error(
-        err.response?.data?.message || 'Error inesperado'
+        error?.response?.data?.message ||
+          'Error de autenticación'
       );
     }
   };
 
   return (
-    <div className={styles.container}>
-      <h1>Login</h1>
+    <Container maxWidth="sm">
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Paper
+          elevation={6}
+          sx={{
+            width: '100%',
+            p: 4,
+            borderRadius: 4,
+          }}
+        >
+          <Typography
+            variant="h4"
+            gutterBottom
+            textAlign="center"
+          >
+            Login
+          </Typography>
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+          <TextField
+            fullWidth
+            label="Email"
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          <TextField
+            fullWidth
+            type="password"
+            label="Password"
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-      <button onClick={handleLogin}>
-        Entrar
-      </button>
-    </div>
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            sx={{ mt: 3 }}
+            onClick={handleLogin}
+          >
+            Entrar
+          </Button>
+        </Paper>
+      </Box>
+    </Container>
   );
 }

@@ -1,12 +1,20 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+} from '@mui/material';
+
 import { toast } from 'react-toastify';
 
-import { createTask } from '../services/task.service';
-import { LoadingContext } from '../context/LoadingContext';
+import api from '../api/api';
 
 export default function CreateTask() {
-  const { setLoading } = useContext(LoadingContext);
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -25,62 +33,68 @@ export default function CreateTask() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.title || !form.responsible) {
-      toast.error('Título y responsable son obligatorios');
-      return;
-    }
-
     try {
-      setLoading(true);
+      await api.post('/tasks', form);
 
-      await createTask(form);
-
-      toast.success('Tarea creada correctamente');
+      toast.success('Tarea creada');
 
       navigate('/tasks');
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error al crear tarea');
-    } finally {
-      setLoading(false);
+      toast.error('Error creando tarea');
     }
   };
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>Crear nueva tarea</h2>
+   return (
+    <Container maxWidth="sm" sx={{ mt: 5 }}>
+      <Paper
+        elevation={5}
+        sx={{
+          p: 4,
+          borderRadius: 4,
+        }}
+      >
+        <Typography variant="h4" mb={3}>
+          Nueva tarea
+        </Typography>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="title"
-          placeholder="Título"
-          value={form.title}
-          onChange={handleChange}
-        />
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+        >
+          <TextField
+            fullWidth
+            label="Título"
+            margin="normal"
+            name="title"
+            onChange={handleChange}
+          />
 
-        <br />
+          <TextField
+            fullWidth
+            label="Descripción"
+            margin="normal"
+            name="description"
+            onChange={handleChange}
+          />
 
-        <input
-          name="description"
-          placeholder="Descripción"
-          value={form.description}
-          onChange={handleChange}
-        />
+          <TextField
+            fullWidth
+            label="Responsable"
+            margin="normal"
+            name="responsible"
+            onChange={handleChange}
+          />
 
-        <br />
-
-        <input
-          name="responsible"
-          placeholder="Responsable"
-          value={form.responsible}
-          onChange={handleChange}
-        />
-
-        <br />
-
-        <button type="submit">
-          Crear tarea
-        </button>
-      </form>
-    </div>
+          <Button
+            fullWidth
+            variant="contained"
+            type="submit"
+            sx={{ mt: 3 }}
+          >
+            Crear tarea
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
