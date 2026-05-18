@@ -6,6 +6,7 @@ import Tasks from './pages/Tasks';
 import Navbar from './components/Navbar';
 
 import { AuthContext } from './context/AuthContext';
+import CreateTask from './pages/CreateTask';
 
 export default function App() {
   const { token } = useContext(AuthContext);
@@ -32,6 +33,10 @@ export default function App() {
         <Route
           path="*"
           element={<Navigate to={token ? "/tasks" : "/"} />}
+        />
+        <Route
+             path="/create"
+            element={token ? <CreateTask /> : <Navigate to="/" />}
         />
       </Routes>
     </>
