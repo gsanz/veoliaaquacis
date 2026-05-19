@@ -1,17 +1,14 @@
-const MongoTaskRepository = require('../infrastructure/task.repository.mongo');
+// task.controller.js
+// NOTA: Este archivo no requiere imports de capas internas (Casos de uso o Repositorios)
+// ya que recibe las dependencias por parámetro desde el enrutador.
 
-const CreateTaskUseCase = require('../application/create-task.usecase');
-const ListTasksUseCase = require('../application/list-tasks.usecase');
-const CompleteTaskUseCase = require('../application/complete-task.usecase');
-const DeleteTaskUseCase = require('../application/delete-task.usecase');
-
-const repository = new MongoTaskRepository();
-
-exports.create = async (req, res, next) => {
+/**
+ * Crear una nueva tarea
+ * Recibe el caso de uso por parámetro y devuelve el middleware de Express
+ */
+exports.create = (createTaskUseCase) => async (req, res, next) => {
   try {
-    const useCase = new CreateTaskUseCase(repository);
-
-    const task = await useCase.execute({
+    const task = await createTaskUseCase.execute({
       ...req.body,
       userId: req.user.id,
     });
@@ -22,43 +19,46 @@ exports.create = async (req, res, next) => {
   }
 };
 
-exports.list = async (req, res, next) => {
+/**
+ * Listar las tareas del usuario con paginación
+ */
+exports.list = (listTasksUseCase) => async (req, res, next) => {
   try {
-    const useCase = new ListTasksUseCase(repository);
-
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.limit, 10) || 10;
 
-    const result = await useCase.execute(req.user.id, {
+    const result = await listTasksUseCase.execute(req.user.id, {
       page,
       limit,
     });
 
-    res.json(result);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
 };
 
-exports.complete = async (req, res, next) => {
+/**
+ * Marcar una tarea como completada
+ */
+exports.complete = (completeTaskUseCase) => async (req, res, next) => {
   try {
-    const useCase = new CompleteTaskUseCase(repository);
+    const task = await completeTaskUseCase.execute(req.params.id);
 
-    const task = await useCase.execute(req.params.id);
-
-    res.json(task);
+    res.status(200).json(task);
   } catch (error) {
     next(error);
   }
 };
 
-exports.delete = async (req, res, next) => {
+/**
+ * Eliminar una tarea
+ */
+exports.delete = (deleteTaskUseCase) => async (req, res, next) => {
   try {
-    const useCase = new DeleteTaskUseCase(repository);
+    await deleteTaskUseCase.execute(req.params.id);
 
-    await useCase.execute(req.params.id);
-
-    res.json({
+    res.status(200).json({
       message: 'Task deleted',
     });
   } catch (error) {
