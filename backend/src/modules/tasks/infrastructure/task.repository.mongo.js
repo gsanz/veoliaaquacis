@@ -6,11 +6,17 @@ class MongoTaskRepository extends TaskRepository {
   // Mapeador interno para transformar el documento de Mongo a Entidad de Dominio
   _mapToEntity(mongoDoc) {
     if (!mongoDoc) return null;
+
+    console.log('INSIDE MONGODOC', mongoDoc);
+
     return new TaskEntity({
-      id: mongoDoc._id.toString(),
+      // Si mongoDoc es un objeto de lean(), el id viene en ._id
+      id: mongoDoc._id ? mongoDoc._id.toString() : null,
       title: mongoDoc.title,
-      completed: mongoDoc.completed,
-      userId: mongoDoc.userId.toString(),
+      description: mongoDoc.description,
+      responsible: mongoDoc.responsible,
+      completed: mongoDoc.completed || false,
+      userId: mongoDoc.userId ? mongoDoc.userId.toString() : null,
       createdAt: mongoDoc.createdAt,
     });
   }
@@ -21,24 +27,48 @@ class MongoTaskRepository extends TaskRepository {
   }
 
   async findAll(userId, { page = 1, limit = 10 }) {
+    console.log('FINDALL FOR USERID:', userId);
+
+    // Seguridad
+    if (!userId) {
+      return {
+        data: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
+        },
+      };
+    }
+
     const skip = (page - 1) * limit;
 
+    const query = { userId };
+
     const [mongoTasks, total] = await Promise.all([
-      TaskModel.find({ userId })
+      TaskModel.find(query)
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
         .lean(),
-      TaskModel.countDocuments({ userId }),
+
+      TaskModel.countDocuments(query),
     ]);
 
-    // Convertimos cada resultado de Mongo a una entidad pura de nuestro dominio
+    // Mapear a entidades de dominio
     const tasks = mongoTasks.map((task) => this._mapToEntity(task));
 
-    // Devolvemos solo los datos crudos. El controlador o el caso de uso calcularán "totalPages"
+    console.log('MAPPED TASKS COUNT:', tasks.length);
+
     return {
-      tasks,
-      total,
+      data: tasks,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     };
   }
 
