@@ -31,6 +31,7 @@ exports.list = (listTasksUseCase) => async (req, res, next) => {
       page,
       limit,
     });
+    console.log(result);
 
     res.status(200).json(result);
   } catch (error) {

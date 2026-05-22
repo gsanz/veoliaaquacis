@@ -60,6 +60,7 @@ class MongoTaskRepository extends TaskRepository {
     const tasks = mongoTasks.map((task) => this._mapToEntity(task));
 
     console.log('MAPPED TASKS COUNT:', tasks.length);
+    console.log(tasks);
 
     return {
       data: tasks,
