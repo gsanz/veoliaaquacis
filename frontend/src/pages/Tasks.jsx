@@ -1,5 +1,5 @@
-import { useEffect, useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Container,
@@ -14,13 +14,14 @@ import {
   TextField,
   Stack,
   Paper,
-} from '@mui/material';
+} from "@mui/material";
 
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 
-import api from '../api/api';
-import TaskCard from '../components/TaskCard';
-import { LoadingContext } from '../context/LoadingContext';
+import api from "../api/api";
+import TaskCard from "../components/TaskCard";
+
+import { useLoading } from "../hooks/useLoading";
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -29,23 +30,19 @@ export default function Tasks() {
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
-  const { setLoading } = useContext(LoadingContext);
+  const { setLoading } = useLoading();
 
   const navigate = useNavigate();
 
-  const fetchTasks = async (
-    pageNumber = 1,
-    pageSize = limit
-  ) => {
+  const fetchTasks = async (pageNumber = 1, pageSize = limit) => {
     try {
       setLoading(true);
 
-      const res = await api.get(
-        `/tasks?page=${pageNumber}&limit=${pageSize}`
-      );
+      const res = await api.get(`/tasks?page=${pageNumber}&limit=${pageSize}`);
 
       const data = res.data?.data || [];
-
+      console.log("VALOR DATA");
+      console.log(data);
 
       const pagination = res.data?.pagination || {};
 
@@ -57,10 +54,7 @@ export default function Tasks() {
 
       setTotalPages(pagination.totalPages || 1);
     } catch (error) {
-      console.error(
-        'Error fetching tasks:',
-        error
-      );
+      console.error("Error fetching tasks:", error);
     } finally {
       setLoading(false);
     }
@@ -70,17 +64,12 @@ export default function Tasks() {
     fetchTasks(1, limit);
   }, []);
 
-  const handlePageChange = (
-    _,
-    value
-  ) => {
+  const handlePageChange = (_, value) => {
     fetchTasks(value, limit);
   };
 
   const handleLimitChange = (e) => {
-    const newLimit = Number(
-      e.target.value
-    );
+    const newLimit = Number(e.target.value);
 
     fetchTasks(1, newLimit);
   };
@@ -109,10 +98,7 @@ export default function Tasks() {
           flexWrap="wrap"
           gap={2}
         >
-          <Typography
-            variant="h4"
-            fontWeight="bold"
-          >
+          <Typography variant="h4" fontWeight="bold">
             Mis tareas
           </Typography>
 
@@ -120,9 +106,7 @@ export default function Tasks() {
             variant="contained"
             startIcon={<AddIcon />}
             size="large"
-            onClick={() =>
-              navigate('/create')
-            }
+            onClick={() => navigate("/create")}
           >
             Nueva tarea
           </Button>
@@ -139,42 +123,29 @@ export default function Tasks() {
       >
         <Stack
           direction={{
-            xs: 'column',
-            sm: 'row',
+            xs: "column",
+            sm: "row",
           }}
           spacing={3}
           alignItems={{
-            xs: 'stretch',
-            sm: 'center',
+            xs: "stretch",
+            sm: "center",
           }}
         >
           {/* PAGE SIZE */}
-          <FormControl
-            size="small"
-            sx={{ minWidth: 180 }}
-          >
-            <InputLabel>
-              Tamaño página
-            </InputLabel>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
+            <InputLabel>Tamaño página</InputLabel>
 
             <Select
               value={limit}
               label="Tamaño página"
-              onChange={
-                handleLimitChange
-              }
+              onChange={handleLimitChange}
             >
-              <MenuItem value={5}>
-                5
-              </MenuItem>
+              <MenuItem value={5}>5</MenuItem>
 
-              <MenuItem value={10}>
-                10
-              </MenuItem>
+              <MenuItem value={10}>10</MenuItem>
 
-              <MenuItem value={20}>
-                20
-              </MenuItem>
+              <MenuItem value={20}>20</MenuItem>
             </Select>
           </FormControl>
 
@@ -188,19 +159,11 @@ export default function Tasks() {
               max: totalPages,
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const num = Number(
-                  e.target.value
-                );
+              if (e.key === "Enter") {
+                const num = Number(e.target.value);
 
-                if (
-                  num >= 1 &&
-                  num <= totalPages
-                ) {
-                  fetchTasks(
-                    num,
-                    limit
-                  );
+                if (num >= 1 && num <= totalPages) {
+                  fetchTasks(num, limit);
                 }
               }
             }}
@@ -215,36 +178,23 @@ export default function Tasks() {
             elevation={1}
             sx={{
               p: 5,
-              textAlign: 'center',
+              textAlign: "center",
               borderRadius: 4,
             }}
           >
-            <Typography variant="h6">
-              No hay tareas
-            </Typography>
+            <Typography variant="h6">No hay tareas</Typography>
           </Paper>
         ) : (
-          tasks.map((task) => (
-            <TaskCard
-              key={task._id}
-              task={task}
-            />
-          ))
+          tasks.map((task) => <TaskCard key={task._id} task={task} />)
         )}
       </Box>
 
       {/* PAGINATION */}
-      <Box
-        display="flex"
-        justifyContent="center"
-        mt={5}
-      >
+      <Box display="flex" justifyContent="center" mt={5}>
         <Pagination
           count={totalPages}
           page={page}
-          onChange={
-            handlePageChange
-          }
+          onChange={handlePageChange}
           color="primary"
           size="large"
           shape="rounded"
