@@ -51,7 +51,6 @@ export default function Tasks() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 6, mb: 6 }}>
-      {/* 🚀 BANNER / HEADER */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -77,8 +76,6 @@ export default function Tasks() {
             Gestiona y organiza tus actividades pendientes con facilidad.
           </Typography>
         </Box>
-
-        {/* Botón enlazado correctamente a la ruta "/create" de tu App.jsx */}
         <Button
           variant="contained"
           size="large"
@@ -99,8 +96,6 @@ export default function Tasks() {
           Nueva Tarea
         </Button>
       </Box>
-
-      {/* 📋 CONTENEDOR PRINCIPAL DE TARJETAS */}
       <Paper
         elevation={0}
         sx={{
@@ -114,7 +109,6 @@ export default function Tasks() {
           justifyContent: "space-between",
         }}
       >
-        {/* LISTADO DE TARJETAS */}
         <Stack spacing={2} sx={{ mb: 4 }}>
           {tasks.length > 0 ? (
             tasks.map((task) => (
@@ -144,8 +138,6 @@ export default function Tasks() {
             </Box>
           )}
         </Stack>
-
-        {/* ⚙️ SECCIÓN DE PAGINACIÓN CORREGIDA (Sin solapamientos) */}
         {tasks.length > 0 && (
           <Box>
             <Divider sx={{ my: 3, borderColor: "#e2e8f0" }} />
@@ -157,7 +149,6 @@ export default function Tasks() {
               flexDirection={{ xs: "column", md: "row" }}
               gap={3}
             >
-              {/* Contenedor ordenado para los selectores de la izquierda */}
               <Stack
                 direction={{ xs: "column", sm: "row" }}
                 spacing={2}
@@ -165,7 +156,6 @@ export default function Tasks() {
                 width={{ xs: "100%", md: "auto" }}
                 justifyContent="center"
               >
-                {/* Selector de Filas */}
                 <FormControl
                   variant="outlined"
                   size="small"
@@ -186,8 +176,6 @@ export default function Tasks() {
                     <MenuItem value={20}>20 filas</MenuItem>
                   </Select>
                 </FormControl>
-
-                {/* Saltador de Página */}
                 <TextField
                   label="Ir a página"
                   variant="outlined"
@@ -206,8 +194,6 @@ export default function Tasks() {
                   }}
                 />
               </Stack>
-
-              {/* Componente Central de Páginas */}
               {totalPages > 1 && (
                 <Pagination
                   count={totalPages}
