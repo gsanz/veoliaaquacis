@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Container,
   Paper,
@@ -8,19 +7,19 @@ import {
   TextField,
   Button,
   Box,
-} from '@mui/material';
+} from "@mui/material";
 
-import { toast } from 'react-toastify';
-
-import api from '../api/api';
+// Importamos tu hook personalizado
+import { useTasks } from "../hooks/useTasks";
 
 export default function CreateTask() {
   const navigate = useNavigate();
+  const { createTask } = useTasks(); // 👈 Consumimos la lógica del hook
 
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    responsible: '',
+    title: "",
+    description: "",
+    responsible: "",
   });
 
   const handleChange = (e) => {
@@ -33,18 +32,14 @@ export default function CreateTask() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      await api.post('/tasks', form);
-
-      toast.success('Tarea creada');
-
-      navigate('/tasks');
-    } catch (error) {
-      toast.error('Error creando tarea');
+    // Pasamos el objeto 'form' completo al hook
+    const success = await createTask(form);
+    if (success) {
+      navigate("/tasks"); // Volvemos al listado si todo salió bien
     }
   };
 
-   return (
+  return (
     <Container maxWidth="sm" sx={{ mt: 5 }}>
       <Paper
         elevation={5}
@@ -57,16 +52,15 @@ export default function CreateTask() {
           Nueva tarea
         </Typography>
 
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-        >
+        <Box component="form" onSubmit={handleSubmit}>
           <TextField
             fullWidth
             label="Título"
             margin="normal"
             name="title"
+            value={form.title}
             onChange={handleChange}
+            required
           />
 
           <TextField
@@ -74,6 +68,7 @@ export default function CreateTask() {
             label="Descripción"
             margin="normal"
             name="description"
+            value={form.description}
             onChange={handleChange}
           />
 
@@ -82,15 +77,11 @@ export default function CreateTask() {
             label="Responsable"
             margin="normal"
             name="responsible"
+            value={form.responsible}
             onChange={handleChange}
           />
 
-          <Button
-            fullWidth
-            variant="contained"
-            type="submit"
-            sx={{ mt: 3 }}
-          >
+          <Button fullWidth variant="contained" type="submit" sx={{ mt: 3 }}>
             Crear tarea
           </Button>
         </Box>

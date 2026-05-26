@@ -1,12 +1,12 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useContext } from "react";
 
-import Login from './pages/Login';
-import Tasks from './pages/Tasks';
-import Navbar from './components/Navbar';
+import Login from "./pages/Login";
+import Tasks from "./pages/Tasks";
+import Navbar from "./components/Navbar";
 
-import { AuthContext } from './context/AuthContext';
-import CreateTask from './pages/CreateTask';
+import { AuthContext } from "./context/AuthContext";
+import CreateTask from "./pages/CreateTask";
 
 export default function App() {
   const { token } = useContext(AuthContext);
@@ -30,13 +30,10 @@ export default function App() {
         />
 
         {/* fallback */}
+        <Route path="*" element={<Navigate to={token ? "/tasks" : "/"} />} />
         <Route
-          path="*"
-          element={<Navigate to={token ? "/tasks" : "/"} />}
-        />
-        <Route
-             path="/create"
-            element={token ? <CreateTask /> : <Navigate to="/" />}
+          path="/create-task"
+          element={token ? <CreateTask /> : <Navigate to="/" />}
         />
       </Routes>
     </>
